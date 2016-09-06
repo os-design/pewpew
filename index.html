@@ -5,10 +5,16 @@
 body {
   margin: 0;
   padding: 0;
-  background: black;
+  background-image: url("background.png");
+  background-color: RGBA(1, 15, 36, 1.00);
+
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
 }
 
 #titlediv {
+  display: none;
   font-family: monospace;
   text-align: center;
   font-size:48px;
@@ -23,6 +29,7 @@ body {
 }
 
 #attackdiv {
+  display: none;
   font-family: monospace;
   font-size:10px;
   position:fixed;
@@ -95,11 +102,12 @@ body {
 
 </style>
 
-<script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
-<script src="http://d3js.org/topojson.v1.min.js"></script>
-<script src="http://datamaps.github.io/scripts/datamaps.world.min.js?v=1"></script>
-<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="d3.v3.min.js"></script>
+<script src="d3.geo.projection.v0.min.js"></script>
+<script src="topojson.v1.min.js"></script>
+<!-- <script src="http://datamaps.github.io/scripts/datamaps.world.min.js?v=1"></script> -->
+<script src="datamaps.world.js"></script>
+<script src="jquery-2.1.1.min.js"></script>
 <script src="jquery.simplemodal-1.4.4.js"></script>
 
 <script>
@@ -123,24 +131,9 @@ function about() {
   <audio id="asteroids" src="asteroids.mp3" preload="auto"></audio>
 
   <center><div id="container1"></div></center>
-  <div id="titlediv">IPew Attack Map</div>
+  <div id="titlediv">HanSight Map</div>
   <div id="attackdiv"></div>
-  <div id="aboutdiv"><i class="fa fa-question-circle fa-2x" onClick="about();"></i></div>
 
-  <div id="ccdiv">
-  <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png" /></a>
-  </div>
-
-  <div id="about">
-  <h3>About IPew</h3>
-  Attack maps are the <span style="font-family: monospace;">&lt;blink&gt;</span> tag of information security. They are pure eye candy, meant to scare the general public and <i>WOW</i> unsuspecting executives visiting Security Operations Centers. Yet, security vendors keep cranking them out. We didn't want organizations without "real" data or l33t animation skills to to feel left out, so we built this map for anyone to use [CC BY-SA]. Plus, they're all missing sound effects! And, most (all, really) use mind-numbingly dumb map projections, begging the question: <i>"Does Greenland make my map look big?"</i>.<br/>
-  <br/>
-  The default map uses a statistical model (infrequently updated) for source "attack" node country of origin &amp; frequency while destinations are fully randomized. The default sound is a Star Wars "blaster" (guess which one!). Sounds can be customized and an organization name can be specified, plus there are a few other <i>interesting</i> options.<br/>
-  <br/>
-  Check out the <a target=_blank href='http://github.com/hrbrmstr/pewpew'>github repository</a> for more information and instructions on how to customize the map options for maximum effect.<br/>
-  <br/>
-  Brought to you by <a target=_blank href="http://twitter.com/alexcpsec">@alexcpsec</a>, <a target=_blank href="http://twitter.com/hrbrmstr">@hrbrmstr</a> &amp; <a target=_blank href="http://dds.ec/blog">Data-Driven Security</a>
-  </div>
 
   <!-- Use Hash-Bang to maintain scroll position when closing modal -->
   <a href="#!" class="modal-close" title="Close this modal"
@@ -151,8 +144,8 @@ function about() {
   <script>
 
     // setup default min/max timer range for random draw
-    attack_min = 100 ;
-    attack_max = 2000 ;
+    attack_min = 100;
+    attack_max = 1000;
 
     // add/change the attack types here
     attack_type = [ "any port scan in a storm", "ssh brutish force", "Thought Leader Tweet",
@@ -162,7 +155,7 @@ function about() {
 
     // gotta add types here if you add more sounds (or delete them)
 
-    audio_type = [ "starwars", "tng", "b5", "wargames", "pew", "galaga", "asteroids" ]
+    // audio_type = [ "starwars", "tng", "b5", "wargames", "pew", "galaga", "asteroids" ]
 
     // need this to more easily grab URI query parameters
     $.extend({
@@ -223,8 +216,6 @@ function about() {
       attack_min=200;
       attack_max=200;
     }
-
-    if (typeof org_name !== 'undefined') { $("#titlediv").text(decodeURI(org_name) + " IPew Attack Map").html() }
 
     // we maintain a fixed queue of "attacks" via this class
     function FixedQueue( size, initialValues ){
@@ -303,16 +294,16 @@ function about() {
 
         scope: 'world',
         element: document.getElementById('container1'),
-        projection: 'winkel3',
+        projection: 'equirectangular',
         // change the projection to something else only if you have absolutely no cartographic sense
 
-        fills: { defaultFill: 'black', },
+        fills: { defaultFill: '#0A233C', },
 
         geographyConfig: {
           dataUrl: null,
           hideAntarctica: true,
           borderWidth: 0.75,
-          borderColor: '#4393c3',
+          borderColor: '#4B677D',
           popupTemplate: function(geography, data) {
             return '<div class="hoverinfo" style="color:white;background:black">' +
                    geography.properties.name + '</div>';
@@ -335,8 +326,8 @@ function about() {
     // setup structures for the "hits" (arcs)
     // and circle booms
 
-    var hits = FixedQueue( 7, [  ] );
-    var boom = FixedQueue( 7, [  ] );
+    var hits = FixedQueue( 10, [  ] );
+    var boom = FixedQueue( 10, [  ] );
 
     // we need random numbers and also a way to build random ip addresses
     function getRandomInt(min, max) {return Math.floor(Math.random() * (max - min + 1)) + min;}
@@ -375,14 +366,14 @@ function about() {
             if (dst > slatlong.length-1) { dst = src - 1 }
            }
 
-           if (typeof allfx !== 'undefined') {
-             snd_id = audio_type[Math.floor((Math.random() * audio_type.length))];
-           }
-           // no guarantee of sound playing w/o the load - stupid browsers
-           if (typeof nofx === 'undefined') {
-             document.getElementById(snd_id).load();
-             document.getElementById(snd_id).play();
-           }
+           // if (typeof allfx !== 'undefined') {
+           //   snd_id = audio_type[Math.floor((Math.random() * audio_type.length))];
+           // }
+           // // no guarantee of sound playing w/o the load - stupid browsers
+           // if (typeof nofx === 'undefined') {
+           //   document.getElementById(snd_id).load();
+           //   document.getElementById(snd_id).play();
+           // }
 
            // add hit to the arc queue
            // use strokeColor to set arc line color
@@ -486,6 +477,11 @@ function about() {
               dstlong = in_lon
            }
 
+           strokeColor = "#FE9900";
+
+           if (hits.length == hits.fixedSize)
+              return;
+
            hits.push( { origin : { latitude: +srclat, longitude: +srclong },
                         destination : { latitude: +dstlat, longitude: +dstlong } } );
            map.arc(hits, {strokeWidth: 2, strokeColor: strokeColor});
@@ -522,31 +518,5 @@ function about() {
     d3.select(window).on('resize', function() { location.reload(); });
 
 </script>
-    <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-      ga('create', 'UA-79740-6', 'datadrivensecurity.info');
-      ga('send', 'pageview');
-
-    </script>
-    <!-- Piwik -->
-    <script type="text/javascript">
-      var _paq = _paq || [];
-      _paq.push(['trackPageView']);
-      _paq.push(['enableLinkTracking']);
-      (function() {
-        var u=(("https:" == document.location.protocol) ? "https" : "http") + "://rud.is/piwik//";
-        _paq.push(['setTrackerUrl', u+'piwik.php']);
-        _paq.push(['setSiteId', 1]);
-        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0]; g.type='text/javascript';
-        g.defer=true; g.async=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-      })();
-
-    </script>
-    <noscript><p><img src="//rud.is/piwik/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
-    <!-- End Piwik Code -->
 </body>
 </html>
