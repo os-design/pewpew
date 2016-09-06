@@ -1,0 +1,6 @@
+:2020
+gzip
+log ./access.log
+proxy /elasticsearch localhost:9200 {
+    without /elasticsearch
+}

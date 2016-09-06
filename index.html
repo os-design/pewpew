@@ -132,13 +132,8 @@ function about() {
 
   <center><div id="container1"></div></center>
   <div id="titlediv">HanSight Map</div>
-  <div id="attackdiv"></div>
+  <!-- <div id="attackdiv"></div> -->
 
-
-  <!-- Use Hash-Bang to maintain scroll position when closing modal -->
-  <a href="#!" class="modal-close" title="Close this modal"
-      data-dismiss="modal" data-close="Close">&times;</a>
-</section>
 
 
   <script>
@@ -434,7 +429,7 @@ function about() {
              srclat = centers[center_id].LAT;
              srclong = centers[center_id].LONG;
            }
-           
+
            // Specify a destination country
            if (typeof destination !== 'undefined' && getDestination() < 80) {
              dstcountry = destination.toUpperCase();
@@ -496,13 +491,13 @@ function about() {
                 }
             });
 
-           // update the scrolling attack div
-           $('#attackdiv').append(srccountry + " (" + randomIP() + ") " +
-                                  " <span style='color:red'>attacks</span> " +
-                                  attackdiv_slatlong+  " (" + randomIP() + ") " +
-                                  " <span style='color:steelblue'>(" + which_attack + ")</span> " +
-                                  "<br/>");
-           $('#attackdiv').animate({scrollTop: $('#attackdiv').prop("scrollHeight")}, 500);
+        //    // update the scrolling attack div
+        //    $('#attackdiv').append(srccountry + " (" + randomIP() + ") " +
+        //                           " <span style='color:red'>attacks</span> " +
+        //                           attackdiv_slatlong+  " (" + randomIP() + ") " +
+        //                           " <span style='color:steelblue'>(" + which_attack + ")</span> " +
+        //                           "<br/>");
+        //    $('#attackdiv').animate({scrollTop: $('#attackdiv').prop("scrollHeight")}, 500);
 
            // pick a new random time and start the timer again!
            this.interval = getRandomInt(attack_min, attack_max);
